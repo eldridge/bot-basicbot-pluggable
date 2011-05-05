@@ -12,11 +12,21 @@ sub init {
             allow_anonymous => 0,
         }
     );
+    # A list of admin commands handled by this module and their usage
+    $self->{_admin_commands} = {
+        auth     => '<username> <password>',
+        adduser  => '<username> <password>',
+        deluser  => '<username>',
+        password => '<old password> <new password>',
+        users    => '',
+    };
 }
 
 sub help {
-    return
-"Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.";
+    my $self = shift;
+    return "Authenticator for admin-level commands. Usage: "
+        . join ", ", map { "$_ $self->{_admin_commands}{$_}" }
+            keys %{ $self->{_admin_commands} };
 }
 
 sub admin {
@@ -28,6 +38,28 @@ sub admin {
     # we don't care about commands that don't start with '!'.
     return 0 unless $body =~ /^!/;
 
+    # Find out what the command is:
+    my ($command, $params) = split '\s+', $mess->{body}, 2;
+    $command =~  s/^!//;
+    $command = lc $command;
+    my @params;
+    @params = split /\s+/, $params if defined $params;
+
+    # If it's not a command we handle, go no further:
+    return 0 unless exists $self->{_admin_commands}{$command};
+
+    # Basic usage check: the usage message declares which params are taken, so
+    # check we have the right number:
+    my $usage_message = $self->{_admin_commands}{$command};
+    
+    # Count how many params we want (assignment to empty list gets us list
+    # context, then assigning to scalar results in the count):
+    my $want_params = () =  $usage_message =~ m{<.+?>}g;
+
+    if (scalar @params != $want_params) {
+        return "Usage: $command $usage_message";
+    }
+
     # system commands have to be directly addressed...
     return 1 unless $mess->{address};
 
@@ -35,8 +67,8 @@ sub admin {
     return "Admin commands in privmsg only, please."
       unless !defined $mess->{channel} || $mess->{channel} eq 'msg';
 
-    if ( $body =~ /^!auth\s+(\w+)\s+(\w+)/ ) {
-        my ( $user, $pass ) = ( $1, $2 );
+    if ($command eq 'auth') {
+        my ( $user, $pass ) = @params;
         my $stored = $self->get( "password_" . $user );
 
         if ( _check_password($pass, $stored) ) {
@@ -52,13 +84,8 @@ sub admin {
             delete $self->{auth}{ $mess->{who} };
             return "Wrong password.";
         }
-    }
-    elsif ( $body =~ /^!auth/ ) {
-        return "Usage: !auth <username> <password>.";
-
-    }
-    elsif ( $body =~ /^!adduser\s+(\w+)\s+(\w+)/ ) {
-        my ( $user, $pass ) = ( $1, $2 );
+    } elsif ( $command eq 'adduser' ) {
+        my ( $user, $pass ) = @params;
         if ( $self->authed( $mess->{who} ) ) {
             $self->set( "password_" . $user, _hash_password($pass) );
             return "Added user $user.";
@@ -66,13 +93,8 @@ sub admin {
         else {
             return "You need to authenticate.";
         }
-    }
-    elsif ( $body =~ /^!adduser/ ) {
-        return "Usage: !adduser <username> <password>";
-
-    }
-    elsif ( $body =~ /^!deluser\s+(\w+)/ ) {
-        my $user = $1;
+    } elsif ( $command eq 'deluser' ) {
+        my ($user) = @params;
         if ( $self->authed( $mess->{who} ) ) {
             $self->unset( "password_" . $user );
             return "Deleted user $user.";
@@ -80,13 +102,8 @@ sub admin {
         else {
             return "You need to authenticate.";
         }
-    }
-    elsif ( $body =~ /^!deluser/ ) {
-        return "Usage: !deluser <username>";
-
-    }
-    elsif ( $body =~ /^!passw?o?r?d?\s+(\w+)\s+(\w+)/ ) {
-        my ( $old_pass, $pass ) = ( $1, $2 );
+    } elsif ($command =~ /passw?o?r?d?/ ) {
+        my ( $old_pass, $pass ) = @params;
         if ( $self->authed( $mess->{who} ) ) {
             my $username = $self->{auth}{ $mess->{who} }{username};
             if (_check_password($old_pass, $self->get("password_$username")) ) {
@@ -100,23 +117,15 @@ sub admin {
         else {
             return "You need to authenticate.";
         }
-    }
-    elsif ( $body =~ /^!passw?o?r?d?/ ) {
-        return "Usage: !password <old password> <new password>.";
-
-    }
-    elsif ( $body =~ /^!users/ ) {
+    } elsif ( $command eq 'users' ) {
         return "Users: "
           . join( ", ",
             map { my $user = $_; $user =~ s/^password_// ? $user : () }
               $self->store_keys( res => ["^password"] ) )
           . ".";
+    
     }
-    else {
-        return
-          if $self->get("allow_anonymous") || $self->authed( $mess->{who} );
-        return "You need to authenticate.";
-    }
+    
 }
 
 sub authed {
