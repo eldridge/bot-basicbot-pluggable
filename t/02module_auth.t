@@ -11,7 +11,7 @@ ok( my $auth = $bot->load('Auth'), "created auth module" );
 
 is(
     $bot->tell_private("!auth"),
-    "Usage: !auth <username> <password>.",
+    "Usage: !auth <username> <password>",
     "auth without arguments"
 );
 is(
@@ -53,7 +53,7 @@ ok( $bot->tell_private("!auth admin julia"), "tried login" );
 ok( !$auth->authed('test_user'),             "not authed" );
 
 ok( $bot->tell_private("!auth test_user test_user"), "logged in as test_user" );
-ok( $bot->tell_private("!passwd test_user dave"),    "changed password" );
+ok( $bot->tell_private("!password test_user dave"),    "changed password" );
 ok( $bot->tell_private("!auth test_user dave"),      "tried login" );
 ok( $auth->authed('test_user'),                      "authed" );
 
@@ -63,8 +63,8 @@ is( $bot->tell_indirect("!auth test_user dave"), "", "ignore public commands" );
 
 is( $bot->tell_private("!users"), "Users: test_user.", "listing of users" );
 
-is(
+like(
     $bot->tell_direct("help Auth"),
-"Authenticator for admin-level commands. Usage: !auth <username> <password>, !adduser <username> <password>, !deluser <username>, !password <old password> <new password>, !users.",
+qr/Authenticator for admin-level commands. Usage:.+/,
     'checking help text'
 );

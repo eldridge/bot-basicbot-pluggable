@@ -25,7 +25,7 @@ sub init {
 sub help {
     my $self = shift;
     return "Authenticator for admin-level commands. Usage: "
-        . join ", ", map { "$_ $self->{_admin_commands}{$_}" }
+        . join ", ", map { "!$_ $self->{_admin_commands}{$_}" }
             keys %{ $self->{_admin_commands} };
 }
 
@@ -57,7 +57,7 @@ sub admin {
     my $want_params = () =  $usage_message =~ m{<.+?>}g;
 
     if (scalar @params != $want_params) {
-        return "Usage: $command $usage_message";
+        return "Usage: !$command $usage_message";
     }
 
     # system commands have to be directly addressed...
@@ -102,7 +102,7 @@ sub admin {
         else {
             return "You need to authenticate.";
         }
-    } elsif ($command =~ /passw?o?r?d?/ ) {
+    } elsif ( $command eq 'password' ) {
         my ( $old_pass, $pass ) = @params;
         if ( $self->authed( $mess->{who} ) ) {
             my $username = $self->{auth}{ $mess->{who} }{username};
@@ -141,6 +141,7 @@ sub authed {
 # use salted hashed passwords.
 sub _check_password {
     my ($entered_pw, $stored_pw) = @_;
+    return unless defined $entered_pw && defined $stored_pw;
     if ($stored_pw =~ /^\{SSHA\}/) {
         return Crypt::SaltedHash->validate($stored_pw, $entered_pw);
     } else {
