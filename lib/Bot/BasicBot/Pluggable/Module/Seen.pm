@@ -14,11 +14,11 @@ sub help {
     return
 "Tracks when and where people were last seen. 
 Usage:
-seen <nick>    (find out where 'nick' was last seen)
-hide           (Start hiding yourself from 'seen' reporting)
-unhide         (Stop  hiding yourself from 'seen' reporting)
-hidechan #chan (Hide a private channel from seen reporting)
-showchan #chan (Stop hiding a private channel from seen reporting)
+seen <nick>      (find out where 'nick' was last seen)
+hide             (Start hiding yourself from 'seen' reporting)
+unhide           (Stop  hiding yourself from 'seen' reporting)
+hidechan   #chan (Hide a private channel from seen reporting)
+unhidechan #chan (Stop hiding a private channel from seen reporting)
 ";
 }
 
@@ -101,7 +101,7 @@ sub told {
         $self->unset("hide_$nick");
         return "Ok, you're visible to seen status.";
     }
-    elsif ( my ($chanhideaction) = $command =~ /(show|hide)chan/ ) {
+    elsif ( my ($chanhideaction) = $command =~ /^(hide|unhide)chan$/ ) {
         my $response;
         if ($self->authed($mess->{who})) {
             my $ignore_channels = $self->get('user_ignore_channels') || {};
