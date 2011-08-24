@@ -12,7 +12,14 @@ sub init {
 
 sub help {
     return
-"Tracks when and where people were seen. Usage: seen <nick>, hide, unhide.";
+"Tracks when and where people were last seen. 
+Usage:
+seen <nick>    (find out where 'nick' was last seen)
+hide           (Start hiding yourself from 'seen' reporting)
+unhide         (Stop  hiding yourself from 'seen' reporting)
+hidechan #chan (Hide a private channel from seen reporting)
+showchan #chan (Stop hiding a private channel from seen reporting)
+";
 }
 
 sub seen {
