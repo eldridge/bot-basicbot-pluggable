@@ -59,7 +59,7 @@ Bot::BasicBot::Pluggable::Module::Vars - change internal module variables
 =head1 SYNOPSIS
 
 Bot modules have variables that they can use to change their behaviour. This
-module, when loaded, gives people who are logged in and autneticated the
+module, when loaded, gives people who are logged in and authenticated the
 ability to change these variables from the IRC interface. The variables
 that are set are in the object store, and begin "user_", so:
 
