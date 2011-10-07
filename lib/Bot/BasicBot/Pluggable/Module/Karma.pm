@@ -113,11 +113,11 @@ sub maybe_add_giver {
 }
 
 sub get_karma {
-    my ( $self, $object ) = @_;
-    $object = lc($object);
-    $object =~ s/-/ /g;
+    my ( $self, $thing ) = @_;
+    $thing = lc($thing);
+    $thing =~ s/-/ /g;
 
-    my @changes = @{ $self->get("karma_$object") || [] };
+    my @changes = @{ $self->get("karma_$thing") || [] };
 
     my ( @good, @bad );
     my $karma    = 0;
@@ -148,15 +148,15 @@ sub get_karma {
 }
 
 sub add_karma {
-    my ( $self, $object, $good, $reason, $who ) = @_;
-    $object = lc($object);
-    $object =~ s/-/ /g;
+    my ( $self, $thing, $good, $reason, $who ) = @_;
+    $thing = lc($thing);
+    $thing =~ s/-/ /g;
     my $row =
       { reason => $reason, who => $who, timestamp => time, positive => $good };
-    my @changes = @{ $self->get("karma_$object") || [] };
+    my @changes = @{ $self->get("karma_$thing") || [] };
     push @changes, $row;
-    $self->set( "karma_$object" => \@changes );
-    return "Karma for $object is now " . scalar $self->get_karma($object);
+    $self->set( "karma_$thing" => \@changes );
+    return "Karma for $thing is now " . scalar $self->get_karma($thing);
 }
 
 sub trim_list {
@@ -234,12 +234,12 @@ scalar context or a array of hash reference. Every hash reference
 has entries for the timestamp (timestamp), the giver (who) and the
 explanation string (reason) for its karma action.
 
-=item add_karma($object, $good, $reason, $who)
+=item add_karma($thing, $good, $reason, $who)
 
-Adds or subtracts from the passed C<$object>'s karma. C<$good> is either 1 (to
-add a karma point to the C<$object> or 0 (to subtract). C<$reason> is an 
+Adds or subtracts from the passed C<$thing>'s karma. C<$good> is either 1 (to
+add a karma point to the C<$thing> or 0 (to subtract). C<$reason> is an 
 optional string commenting on the reason for the change, and C<$who> is the
-person modifying the karma of C<$object>. Nothing is returned.
+person modifying the karma of C<$thing>. Nothing is returned.
 
 =back
 
