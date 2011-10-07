@@ -598,6 +598,8 @@ I am merely the current maintainer; however, the AUTHOR heading is traditional.
 
 =item * Tom Insam <tom@jerakeen.org>
 
+=item * David Precious <davidp@preshweb.co.uk>
+
 =back
 
 =head1 CREDITS
