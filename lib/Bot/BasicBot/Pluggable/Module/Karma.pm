@@ -162,8 +162,8 @@ sub add_karma {
 sub trim_list {
     my ( $self, $list, $count ) = @_;
 
-    # If radomization isn't requested we just return the reasons
-    # in reversed cronological order
+    # If randomization isn't requested we just return the reasons
+    # in reversed chronological order
 
     if ( $self->get('user_randomize_reasons') ) {
         fisher_yates_shuffle($list);
