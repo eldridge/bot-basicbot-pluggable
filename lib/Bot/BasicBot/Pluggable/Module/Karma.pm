@@ -20,72 +20,50 @@ sub help {
 "Gives karma for or against a particular thing. Usage: <thing>++ # comment, <thing>-- # comment, karma <thing>, explain <thing>.";
 }
 
-sub seen {
-    my ( $self, $mess ) = @_;
-    my $body = $mess->{body};
-    return 0 unless defined $body;
-    my ( $command, $param ) = split( /\s+/, $body, 2 );
-    $command = lc($command);
-
-    if (   ( $body =~ /(\w+)\+\+\s*#?\s*/ )
-        or ( $body =~ /\(([\w\s]+)\)\+\+\s*#?\s*/ ) )
-    {
-        return
-          if ( ( $1 eq $mess->{who} ) and $self->get("user_ignore_selfkarma") );
-        return $self->add_karma( $1, 1, $', $mess->{who} );
-    }
-    elsif (( $body =~ /(\w+)\-\-\s*#?\s*/ )
-        or ( $body =~ /\(([\w\s]+)\)\-\-\s*#?\s*/ ) )
-    {
-        return
-          if ( ( $1 eq $mess->{who} ) and $self->get("user_ignore_selfkarma") );
-        return $self->add_karma( $1, 0, $', $mess->{who} );
-    }
-    elsif ( $mess->{address} && ( $body =~ /\+\+\s*#?\s*/ ) ) {
-        return $self->add_karma( $mess->{address}, 1, $', $mess->{who} );
-
-    # our body check here is constrained to the beginning of the line with
-    # an optional "-" of "--" because Bot::BasicBot sees "<botname>-" as being
-    # an addressing mode (along with "," and ":"). so, "<botname>--" comes
-    # through as "<botname>-" in {address} and "-" as the start of our body.
-    # TODO: add some sort of $mess->{rawbody} to Bot::BasicBot.pm. /me grumbles.
-    }
-    elsif ( $mess->{address} && ( $body =~ /\-?\-\s*#?\s*/ ) ) {
-        return $self->add_karma( $mess->{address}, 0, $', $mess->{who} );
-    }
-}
-
 sub told {
     my ( $self, $mess ) = @_;
     my $body = $mess->{body};
+    return 0 unless defined $body;
 
+    # If someone is trying to change the bot's karma, we'll have our bot nick in
+    # {addressed}, and '++' or '-' in the body ('-' rather than '--' because
+    # Bot::BasicBot removes one of the dashes as it considers it part of the
+    # address)
+    if ( $mess->{address} && ($body eq '++' or $body eq '-') ) {
+        $body = '--' if $body eq '-';
+        $body = $mess->{address} . $body;
+    }
+
+    my $op_re      = qr{ ( \-\- | \+\+ )        }x;
+    my $comment_re = qr{ (?: \s* \# \s* (.+) )? }x;
+    for my $regex (
+        qr{   (\w+)    \s* $op_re $comment_re  }x, # singleword++
+        qr{\( (.+)  \) \s* $op_re $comment_re  }x  # (more words)++
+    ) {
+        if (my($thing, $op, $comment) = $body =~ $regex) {
+            my $add = $op eq '++' ? 1 : 0;
+            if ( 
+                ( $1 eq $mess->{who} ) and $self->get("user_ignore_selfkarma") 
+            ){
+                return;
+            }
+            my $reply = $self->add_karma( $thing, $add, $comment, $mess->{who} );
+            if (lc $thing eq lc $self->bot->nick) {
+                $reply .= ' ' . ($add ? '(thanks!)' : '(pffft)');
+            }
+            return $reply;
+        }
+    }
+
+    # OK, handle "karma" / "explain" commands
     my ( $command, $param ) = split( /\s+/, $body, 2 );
     $command = lc($command);
 
-    my $nick = $self->bot->nick;
-
-    my $tmp = $command;
-    if ( $tmp =~ s!^$nick!! or $nick = $mess->{address} ) {
-        if ( $tmp eq '++' ) {
-            return "Thanks!";
-        }
-        elsif ( $tmp =~ /^--?$/ ) {
-            return "Pbbbbtt!";
-        }
-    }
-
     if ( $command eq "karma" ) {
-        if ($param) {
-            return "$param has karma of " . $self->get_karma($param) . ".";
-        }
-        else {
-            return
-                $mess->{who}
-              . " has karma of "
-              . $self->get_karma( $mess->{who} ) . ".";
-        }
-    }
-    elsif ( $command eq "explain" and $param ) {
+        $param ||= $mess->{who};
+        return "$param has karma of " . $self->get_karma($param) . ".";
+    
+    } elsif ( $command eq "explain" and $param ) {
         $param =~ s/^karma\s+//i;
         my ( $karma, $good, $bad ) = $self->get_karma($param);
         my $reply = "positive: " . $self->format_reasons($good) . "; ";
@@ -95,6 +73,7 @@ sub told {
         return $reply;
     }
 }
+
 
 sub format_reasons {
     my ( $self, $reason ) = @_;
@@ -177,7 +156,7 @@ sub add_karma {
     my @changes = @{ $self->get("karma_$object") || [] };
     push @changes, $row;
     $self->set( "karma_$object" => \@changes );
-    return 1;
+    return "Karma for $object is now " . scalar $self->get_karma($object);
 }
 
 sub trim_list {
