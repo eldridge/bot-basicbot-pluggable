@@ -74,7 +74,7 @@ has logconfig => ( is => 'rw', isa => 'Str' );
 
 has configfile => (
     is      => 'rw',
-    isa     => 'Str',
+    isa     => 'Str|Undef',
     default => Config::Find->find( name => 'bot-basicbot-pluggable.yaml' ),
 );
 
