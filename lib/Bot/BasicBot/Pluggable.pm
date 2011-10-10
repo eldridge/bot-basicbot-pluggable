@@ -209,7 +209,7 @@ sub store {
 sub loglevel {
     my $self = shift;
     $self->{loglevel} = shift if @_;
-    return uc $self->{loglevel} || 'WARN';
+    return ($self->{loglevel} and uc $self->{loglevel}) || 'WARN';
 }
 
 sub logconfig {
