@@ -160,7 +160,10 @@ sub add_karma {
     my @changes = @{ $self->get("karma_$thing") || [] };
     push @changes, $row;
     $self->set( "karma_$thing" => \@changes );
-    return "Karma for $thing is now " . scalar $self->get_karma($thing);
+    my $respond = $self->get("karma_change_reponse");
+    $respond = 1 if !defined $respond;
+    return $respond ?
+        "Karma for $thing is now " . scalar $self->get_karma($thing) : 1;
 }
 
 sub trim_list {
@@ -206,9 +209,15 @@ Bot::BasicBot::Pluggable::Module::Karma - tracks karma for various concepts
 
 Increases the karma for <thing>.
 
+Responds with the new karma for <thing> unless C<karma_change_response> is set 
+to a false value.
+
 =item <thing>-- # <comment>
 
 Decreases the karma for <thing>.
+
+Responds with the new karma for <thing> unless C<karma_change_response> is set 
+to a false value.
 
 =item karma <thing>
 
@@ -272,6 +281,13 @@ Defaults to 1; whether to randomize the order of reasons. If set
 to 0, the reasons are sorted in reversed chronological order.
 
 =back
+
+=item karma_change_response
+
+Defaults to 1; whether to show a response when the karma of a
+thing is changed.  If true, the bot will reply with the new karma.
+If set to 0, the bot will silently update the karma, without
+a response.
 
 =head1 AUTHOR
 
