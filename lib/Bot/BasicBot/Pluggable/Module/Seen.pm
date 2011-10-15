@@ -12,7 +12,14 @@ sub init {
 
 sub help {
     return
-"Tracks when and where people were seen. Usage: seen <nick>, hide, unhide.";
+"Tracks when and where people were last seen. 
+Usage:
+seen <nick>      (find out where 'nick' was last seen)
+hide             (Start hiding yourself from 'seen' reporting)
+unhide           (Stop  hiding yourself from 'seen' reporting)
+hidechan   #chan (Hide a private channel from seen reporting)
+unhidechan #chan (Stop hiding a private channel from seen reporting)
+";
 }
 
 sub seen {
@@ -38,7 +45,10 @@ sub chanjoin {
 
 sub update_seen {
     my ( $self, $who, $channel, $what ) = @_;
-    my $nick = lc($who);
+    my $nick = lc $who;
+    my $ignore_channels = $self->get('user_ignore_channels') || {};
+    return if exists $ignore_channels->{$channel};
+
     $self->set(
         "seen_$nick" => {
             time    => time,
@@ -59,9 +69,12 @@ sub told {
     if ( $command eq "seen" and $param =~ /^(.+?)\??$/ ) {
         my $who  = lc($1);
         my $seen = $self->get("seen_$who");
+    
+        my $ignore_channels = $self->get('user_ignore_channels') || {};
+        my $hidden_channel = exists $ignore_channels->{ $seen->{channel} };
 
         if ( ( $self->get("user_allow_hiding") and $self->get("hide_$who") )
-            or !$seen )
+            or !$seen or $hidden_channel )
         {
             return "Sorry, I haven't seen $1.";
         }
@@ -87,6 +100,23 @@ sub told {
         my $nick = lc( $mess->{who} );
         $self->unset("hide_$nick");
         return "Ok, you're visible to seen status.";
+    }
+    elsif ( my ($chanhideaction) = $command =~ /^(hide|unhide)chan$/ ) {
+        my $response;
+        if ($self->authed($mess->{who})) {
+            my $ignore_channels = $self->get('user_ignore_channels') || {};
+            if ($chanhideaction eq 'hide') {
+                $ignore_channels->{$param}++;
+                $response = "OK, not tracking users in $param";
+            } else {
+                delete $ignore_channels->{$param};
+                $response =  "OK, tracking users in $param";
+            }
+            $self->set('user_ignore_channels', $ignore_channels);
+            return $response;
+        } else {
+            return "You need to be authenticated to do that.";
+        }
     }
 }
 
