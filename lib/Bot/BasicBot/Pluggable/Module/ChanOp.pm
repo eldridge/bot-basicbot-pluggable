@@ -19,7 +19,9 @@ sub isop {
     my ( $self, $channel, $who ) = @_;
     return unless $channel;
     $who ||= $self->bot->nick();
-    return $self->bot->channel_data($channel)->{$who}->{op};
+    my $channel_data = $self->bot->channel_data($channel)
+        or return;
+    return $channel_data($channel)->{$who}->{op};
 }
 
 sub deop_op {
