@@ -320,7 +320,7 @@ become the only thing to do, and I will deprecate C<said()>.
 =item replied($message,$reply)
 
 This method is called every time a module returns an reply. The first
-argurment is the original message and the second is the returned
+argument is the original message and the second is the returned
 string. The return value of this method is actually discarded, so
 you can't do anything to prevent the message from being sent. This
 is mainly meant to log the bots activity.
