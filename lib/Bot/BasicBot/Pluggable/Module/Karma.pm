@@ -60,6 +60,7 @@ sub told {
     $command = lc($command);
 
     if ( $command eq "karma" ) {
+		$param =~ s/\?+$//; # handle interrogatives - lop off trailing question marks
         if ($param eq 'chameleon') {
             return "Karma karma karma karma karma chameleon, "
                 . "you come and go, you come and go...";
