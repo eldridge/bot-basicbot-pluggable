@@ -1,5 +1,15 @@
 Revision history for Perl extension Bot::BasicBot::Pluggable.
 
+0.94 - Tue Nov 15 20:45:32 CST 2011
+ - a number of fixes and enhancements from bigpresh:
+    - new feature: ability to hide channels from being "seen" by the Seen module
+    - new feature: ability for the Karma module to report karma upon change
+    - cleanup in the Karma module (plus an easter egg)
+    - eliminate warnings in ChanOp module
+    - typo fixes
+ - allow the configfile to be undef from adamtaylor
+ - handle interrogatives in the Karma module
+
 0.93 - Mon Jun 27 10:40:24 CDT 2011
  - when creating temporary files for Store::Storable->save, make sure
    they are created in the same directory that the final file will be
