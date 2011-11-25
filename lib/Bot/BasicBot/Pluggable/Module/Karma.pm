@@ -60,7 +60,7 @@ sub told {
     $command = lc($command);
 
     if ( $command eq "karma" ) {
-        if ($param eq 'chameleon') {
+        if ($param && $param eq 'chameleon') {
             return "Karma karma karma karma karma chameleon, "
                 . "you come and go, you come and go...";
         }
