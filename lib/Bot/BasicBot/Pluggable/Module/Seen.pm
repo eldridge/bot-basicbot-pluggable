@@ -71,11 +71,12 @@ sub told {
         my $seen = $self->get("seen_$who");
     
         my $ignore_channels = $self->get('user_ignore_channels') || {};
-        my $hidden_channel = exists $ignore_channels->{ $seen->{channel} };
+        my $hidden_channel = 
+            $seen && exists $ignore_channels->{ $seen->{channel} };
 
-        if ( ( $self->get("user_allow_hiding") and $self->get("hide_$who") )
-            or !$seen or $hidden_channel )
-        {
+        if (!$seen || $hidden_channel
+            || ( $self->get("user_allow_hiding") and $self->get("hide_$who") )
+        ) {
             return "Sorry, I haven't seen $1.";
         }
 
