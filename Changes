@@ -1,5 +1,10 @@
 Revision history for Perl extension Bot::BasicBot::Pluggable.
 
+0.96 - Wed Feb 29 21:05:58 CST 2012
+ - more fixes from bigpresh:
+    - fix tests busted by karma changes
+    - fix regression in the seen module
+
 0.95 - Tue Nov 15 20:58:25 CST 2011
  - a number of fixes and enhancements from bigpresh:
     - new feature: ability to hide channels from being "seen" by the Seen module
