@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 31;
+use Test::More tests => 27;
 use Test::Bot::BasicBot::Pluggable;
 
 my $bot   = Test::Bot::BasicBot::Pluggable->new();
@@ -52,15 +52,9 @@ is(
 );
 
 is( $bot->tell_indirect('test_bot++'),
-    'Thanks!', 'thanking for karming up bot' );
+    'Karma for test_bot is now 1 (thanks!)', 'thanking for karming up bot' );
 is( $bot->tell_indirect( 'test_bot--', 'alice' ),
-    'Pbbbbtt!', 'complaining about karming down bot' );
-
-is( $bot->tell_direct('++'),
-    'Thanks!', 'thanking up bot without explicit addressing' );
-is( $bot->tell_direct('--'),
-    'Pbbbbtt!',
-    'complaining about karming down bot without explicit addressing' );
+    'Karma for test_bot is now 0 (pffft)', 'complaining about karming down bot' );
 
 $bot->tell_indirect('test_user++');
 test_karma( 'test_user', 0, 'user is not allowed to use positiv selfkarma' );
@@ -75,20 +69,6 @@ test_karma( 'test_user', 1, 'user is allowed to use positive selfkarma' );
 
 $bot->tell_indirect('test_user--');
 test_karma( 'test_user', 0, 'user is allowed to use negativ selfkarma' );
-
-$bot->tell_indirect('Foo alice--');
-is(
-    $bot->tell_indirect('karma alice'),
-    'alice has karma of 1.',
-    'negative karma in sentance'
-);
-
-$bot->tell_indirect('Foo alice++');
-is(
-    $bot->tell_indirect('karma alice'),
-    'alice has karma of 2.',
-    'positiv karma in sentance'
-);
 
 is(
     $karma->help(),
@@ -137,28 +117,28 @@ $karma->set( "user_num_comments",      2 );
 $karma->set( "user_show_givers",       0 );
 $karma->set( "user_randomize_reasons", 0 );
 
-$bot->tell_indirect('alice++ good cipher');
+$bot->tell_indirect('alice++ # good cipher');
 is(
     $bot->tell_indirect('explain alice'),
     'positive: good cipher; negative: nothing; overall: 3.',
     'explaining karma of alice with one positive reason'
 );
 
-$bot->tell_indirect('alice-- bad cipher');
+$bot->tell_indirect('alice-- # bad cipher');
 is(
     $bot->tell_indirect('explain alice'),
     'positive: good cipher; negative: bad cipher; overall: 2.',
     'explaining karma of alice with one positive and negative reason'
 );
 
-$bot->tell_indirect('alice-- Friend of Eve');
+$bot->tell_indirect('alice-- # Friend of Eve');
 is(
     $bot->tell_indirect('explain alice'),
     'positive: good cipher; negative: Friend of Eve, bad cipher; overall: 1.',
     'explaining karma of alice with one positive and two negative reason'
 );
 
-$bot->tell_indirect('alice-- Friend of Mallory');
+$bot->tell_indirect('alice-- # Friend of Mallory');
 is(
     $bot->tell_indirect('explain alice'),
 'positive: good cipher; negative: Friend of Mallory, Friend of Eve; overall: 0.',

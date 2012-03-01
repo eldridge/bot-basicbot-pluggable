@@ -61,7 +61,7 @@ sub told {
 
     if ( $command eq "karma" ) {
 		$param =~ s/\?+$//; # handle interrogatives - lop off trailing question marks
-        if ($param eq 'chameleon') {
+        if ($param && $param eq 'chameleon') {
             return "Karma karma karma karma karma chameleon, "
                 . "you come and go, you come and go...";
         }
