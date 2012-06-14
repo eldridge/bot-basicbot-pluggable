@@ -21,7 +21,7 @@ sub isop {
     $who ||= $self->bot->nick();
     my $channel_data = $self->bot->channel_data($channel)
         or return;
-    return $channel_data($channel)->{$who}->{op};
+    return $channel_data->{$who}->{op};
 }
 
 sub deop_op {
