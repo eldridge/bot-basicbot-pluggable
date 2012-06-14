@@ -1,5 +1,9 @@
 Revision history for Perl extension Bot::BasicBot::Pluggable.
 
+0.97 - Thu Jun 14 10:39:29 CDT 2012
+ - more fixes from bigpresh
+    - fix regression in ChanOp->isop() introduced in 0.95 (thanks to ambs for finding it)
+
 0.96 - Wed Feb 29 21:05:58 CST 2012
  - more fixes from bigpresh:
     - fix tests busted by karma changes
