@@ -1,5 +1,8 @@
 Revision history for Perl extension Bot::BasicBot::Pluggable.
 
+0.98 - Thu Nov  1 22:14:56 CDT 2012
+ - fix the spelling of the karma_change_response configuration item (was karma_change_reponse)
+
 0.97 - Thu Jun 14 10:39:29 CDT 2012
  - more fixes from bigpresh
     - fix regression in ChanOp->isop() introduced in 0.95 (thanks to ambs for finding it)
