@@ -161,7 +161,7 @@ sub add_karma {
     my @changes = @{ $self->get("karma_$thing") || [] };
     push @changes, $row;
     $self->set( "karma_$thing" => \@changes );
-    my $respond = $self->get("karma_change_reponse");
+    my $respond = $self->get('karma_change_response');
     $respond = 1 if !defined $respond;
     return $respond ?
         "Karma for $thing is now " . scalar $self->get_karma($thing) : 1;
