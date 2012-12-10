@@ -292,9 +292,12 @@ is a L<Bot::BasicBot> 'message' object, as passed to it's 'said' function - see
 those docs for further details. The second parameter is the priority of the
 message - all modules will have the 'said' function called up to 4 times, with
 priorities of 0, 1, 2, and 3. The first module to return a non-null value
-'claims' the message, and the bot will reply to it with the value returned.
+'claims' the message, and the bot will reply to it with the value returned -
+unless the value is "1", in which case the message is considered claimed (no
+other module will see it) but no reply will be issued.
 
-The exception to this is the 0 priority, which a module MUST NOT respond to.
+The exception to this is the 0 priority, which a module MUST NOT respond to 
+(any response will be ignored).
 This is so that all modules will at least see all messages. I suggest:
 
   sub said {
@@ -308,7 +311,9 @@ This is so that all modules will at least see all messages. I suggest:
 
     # do something here
 
-    return;
+    return;       # allows other modules to see this message, or:
+    return 1;     # "eat" the message, no other module sees it, no reply, or:
+    return "OK!"; # "eat" the message and send a reply back to the user
   }
 
 The preferred way, however, is to override one of the seperate C<seen()>, C<admin()>,
