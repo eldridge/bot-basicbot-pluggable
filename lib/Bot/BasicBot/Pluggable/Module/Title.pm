@@ -30,7 +30,7 @@ sub admin {
 
     # If the message was from the bot (for e.g. another module announcing the
     # title of an URL we just said, etc), go no further, to avoid loops
-    return if $mess->{who} eq $self->nick;
+    return if $mess->{who} eq $self->bot->nick;
 
     my $ignore_regexp = $self->get('user_ignore_re');
 
