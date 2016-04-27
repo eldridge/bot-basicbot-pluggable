@@ -37,7 +37,7 @@ sub told {
     my $op_re      = qr{ ( \-\- | \+\+ )        }x;
     my $comment_re = qr{ (?: \s* \# \s* (.+) )? }x;
     for my $regex (
-        qr{^   (\w+)     $op_re $comment_re  }x, # singleword++
+        qr{^   (\S+)     $op_re $comment_re  }x, # singleword++
         qr{^ \( (.+)  \) $op_re $comment_re  }x  # (more words)++
     ) {
         if (my($thing, $op, $comment) = $body =~ $regex) {
